@@ -56,6 +56,7 @@ class Application_Model_StoredFile
         "owner_id"     => "DbOwnerId",
         "cuein"        => "DbCueIn",
         "cueout"       => "DbCueOut",
+        "crtc"         => "DbCRTC"
     );
 
     function __construct($file, $con) {
@@ -635,7 +636,7 @@ SQL;
         "bit_rate", "sample_rate", "isrc_number", "encoded_by", "label",
         "copyright", "mime", "language", "filepath", "owner_id",
         "conductor", "replay_gain", "lptime", "is_playlist", "is_scheduled",
-        "cuein", "cueout" );
+        "cuein", "cueout", "crtc" );
     }
 
     public static function searchLibraryFiles($datatables)
@@ -744,7 +745,13 @@ SQL;
                 $blSelect[]     = "NULL::VARCHAR AS ".$key;
                 $fileSelect[]   = $key;
                 $streamSelect[] = $key;
-            } 
+            }
+            else if ($key == "crtc") {
+                $plSelect[]     = "NULL::VARCHAR AS ".$key;
+                $blSelect[]     = "NULL::VARCHAR AS ".$key;
+                $fileSelect[]   = $key;
+                $streamSelect[] = $key;
+            }            
             else {
                 $plSelect[]     = "NULL::text AS ".$key;
                 $blSelect[]     = "NULL::text AS ".$key;

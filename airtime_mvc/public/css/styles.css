@@ -51,7 +51,7 @@ select {
     position:absolute;
     right:20px;
     top:104px;
-    background:transparent url(images/airtime_logo.png) no-repeat 0 0;
+    background:transparent url(images/airtime_eh_logo.png) no-repeat 0 0;
     height:35px;
     width:66px;
     z-index:1000;
@@ -960,7 +960,7 @@ input[type="checkbox"] {
 .logobox {
     height:120px;
     text-align:center;
-    background:url(images/airtime_logo_big.png) no-repeat 50% 0;
+    background:url(images/airtime_eh_logo_big.png) no-repeat 50% 0;
 }
 
 .login {

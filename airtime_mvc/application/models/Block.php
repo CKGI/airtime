@@ -83,7 +83,8 @@ class Application_Model_Block implements Application_Model_LibraryEditable
             "sample_rate"  => "DbSampleRate",
             "track_title"  => "DbTrackTitle",
             "track_number" => "DbTrackNumber",
-            "year"         => "DbYear"
+            "year"         => "DbYear",
+            "crtc"         => "DbCRTC"
     );
 
     public function __construct($id=null, $con=null)
@@ -1376,7 +1377,8 @@ SQL;
             "track_number" => _("Track Number"),
             "utime"        => _("Uploaded"),
             "info_url"     => _("Website"),
-            "year"         => _("Year")
+            "year"         => _("Year"),
+            "crtc"         => _("CRTC Category"),
         );
 
         $modifierOptions = array(

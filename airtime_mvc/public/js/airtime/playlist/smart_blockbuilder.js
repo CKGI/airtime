@@ -4,10 +4,10 @@ $(document).ready(function() {
 
 function setSmartBlockEvents() {
     var form = $('#smart-block-form');
-    
+
     /********** ADD CRITERIA ROW **********/
     form.find('#criteria_add').live('click', function(){
-        
+
         var div = $('dd[id="sp_criteria-element"]').children('div:visible:last');
 
         div.find('.db-logic-label').text('and').show();
@@ -18,12 +18,12 @@ function setSmartBlockEvents() {
         if (div.length === 0) {
             $(this).hide();
         }
-        
+
         appendAddButton();
         appendModAddButton();
         removeButtonCheck();
     });
-    
+
     /********** ADD MODIFIER ROW **********/
     form.find('a[id^="modifier_add"]').live('click', function(){
         var criteria_value = $(this).siblings('select[name^="sp_criteria_field"]').val();
@@ -40,30 +40,30 @@ function setSmartBlockEvents() {
         if (newRow.children().hasClass('errors sp-errors')) {
             newRow.find('span[class="errors sp-errors"]').remove();
         }
-        
+
         //hide the critieria field select box
         newRowCrit.addClass('sp-invisible');
-        
+
         //keep criteria value the same
         newRowCrit.val(criteria_value);
-        
+
         //reset all other values
         newRowMod.val('0');
         newRowVal.val('');
         newRowExtra.val('');
         disableAndHideExtraField(newRowVal);
         sizeTextBoxes(newRowVal, 'sp_extra_input_text', 'sp_input_text');
-        
+
         //remove the 'criteria add' button from new modifier row
         newRow.find('#criteria_add').remove();
-        
+
         $(this).parent().after(newRow);
         reindexElements();
         appendAddButton();
         appendModAddButton();
         removeButtonCheck();
     });
-	
+
     /********** REMOVE ROW **********/
     form.find('a[id^="criteria_remove"]').live('click', function(){
         var curr = $(this).parent();
@@ -75,7 +75,7 @@ function setSmartBlockEvents() {
         var item_to_hide;
         var prev;
         var index;
-        
+
         //remove error message from current row, if any
         var error_element = curr.find('span[class="errors sp-errors"]');
         if (error_element.is(':visible')) {
@@ -86,19 +86,19 @@ function setSmartBlockEvents() {
          * the row getting removed
          */
         for (var i=0; i<count; i++) {
-            
+
             index = getRowIndex(curr);
-            
+
             var criteria = next.find('[name^="sp_criteria_field"]').val();
             curr.find('[name^="sp_criteria_field"]').val(criteria);
-            
+
             var modifier = next.find('[name^="sp_criteria_modifier"]').val();
             populateModifierSelect(curr.find('[name^="sp_criteria_field"]'), false);
             curr.find('[name^="sp_criteria_modifier"]').val(modifier);
-            
+
             var criteria_value = next.find('[name^="sp_criteria_value"]').val();
             curr.find('[name^="sp_criteria_value"]').val(criteria_value);
-             
+
             /* if current and next row have the extra criteria value
              * (for 'is in the range' modifier), then assign the next
              * extra value to current and remove that element from
@@ -106,18 +106,18 @@ function setSmartBlockEvents() {
              */
             if (curr.find('[name^="sp_criteria_extra"]').attr("disabled") != "disabled"
                 && next.find('#extra_criteria').is(':visible')) {
-            	
+
                 var criteria_extra = next.find('[name^="sp_criteria_extra"]').val();
                 curr.find('[name^="sp_criteria_extra"]').val(criteria_extra);
                 disableAndHideExtraField(next.find(':first-child'), getRowIndex(next));
-            
+
             /* if only the current row has the extra criteria value,
              * then just remove the current row's extra criteria element
              */
             } else if (curr.find('[name^="sp_criteria_extra"]').attr("disabled") != "disabled"
                        && next.find('#extra_criteria').not(':visible')) {
                 disableAndHideExtraField(curr.find(':first-child'), index);
-                
+
             /* if only the next row has the extra criteria value,
              * then add the extra criteria element to current row
              * and assign next row's value to it
@@ -141,12 +141,12 @@ function setSmartBlockEvents() {
                     curr.find('select[name^="sp_criteria_field"]').removeClass('sp-invisible');
                 }
             }
-            
+
             curr = next;
             next = curr.next();
-            
+
         }
-       
+
         /* Disable the last visible row since it holds the values the user removed
          * Reset the values to empty and resize the criteria value textbox
          * in case the row had the extra criteria textbox
@@ -160,12 +160,12 @@ function setSmartBlockEvents() {
                     .find('[name^="sp_criteria_modifier"]').val(0).end()
                     .find('[name^="sp_criteria_value"]').val('').end()
                     .find('[name^="sp_criteria_extra"]').val('');
-        
+
         sizeTextBoxes(item_to_hide.find('[name^="sp_criteria_value"]'), 'sp_extra_input_text', 'sp_input_text');
         item_to_hide.hide();
 
         list.next().show();
-        
+
         //check if last row is a modifier row
         var last_row = list.find('div:visible:last');
         if (last_row.find('[name^="sp_criteria_field"]').val() == last_row.prev().find('[name^="sp_criteria_field"]').val()) {
@@ -173,38 +173,38 @@ function setSmartBlockEvents() {
                 last_row.find('select[name^="sp_criteria_field"]').addClass('sp-invisible');
             }
         }
-        
+
         // always put '+' button on the last enabled row
         appendAddButton();
-        
+
         reindexElements();
-        
+
         // always put '+' button on the last modifier row
         appendModAddButton();
-        
+
         // remove the 'x' button if only one row is enabled
         removeButtonCheck();
     });
-	
+
     /********** SAVE ACTION **********/
     // moved to spl.js
-    
+
     /********** GENERATE ACTION **********/
     $('button[id="generate_button"]').live("click", function(){
         buttonClickAction('generate', 'Playlist/smart-block-generate');
     });
-    
+
     /********** SHUFFLE ACTION **********/
     $('button[id="shuffle_button"]').live("click", function(){
         buttonClickAction('shuffle', 'Playlist/smart-block-shuffle');
     });
-	
+
     /********** CHANGE PLAYLIST TYPE **********/
     form.find('dd[id="sp_type-element"]').live("change", function(){
         setupUI();
         AIRTIME.library.checkAddButton();
     });
-    
+
     /********** CRITERIA CHANGE **********/
     form.find('select[id^="sp_criteria"]:not([id^="sp_criteria_modifier"])').live("change", function(){
         var index = getRowIndex($(this).parent());
@@ -222,17 +222,17 @@ function setSmartBlockEvents() {
                 return false;
             }
         });
-        
+
         // disable extra field and hide the span
         disableAndHideExtraField($(this), index);
         populateModifierSelect(this, true);
     });
-    
+
     /********** MODIFIER CHANGE **********/
     form.find('select[id^="sp_criteria_modifier"]').live("change", function(){
         var criteria_value = $(this).next(),
             index_num = getRowIndex($(this).parent());
-        
+
         if ($(this).val() == 'is in the range') {
             enableAndShowExtraField(criteria_value, index_num);
         } else {
@@ -252,7 +252,7 @@ function getRowIndex(ele) {
         start = 3,
         tokens = id.split(delimiter).slice(start),
         index = tokens.join(delimiter);
-    
+
     return index;
 }
 
@@ -296,7 +296,7 @@ function reindexElements() {
 
     $.each(divs, function(i, div){
         if (i > 0 && index < 26) {
-            
+
             /* If the current row's criteria field is hidden we know it is
              * a modifier row
              */
@@ -312,7 +312,7 @@ function reindexElements() {
                 index++;
                 modIndex = 0;
             }
-            
+
             $(div).find('select[name^="sp_criteria_field"]').attr('name', 'sp_criteria_field_'+index+'_'+modIndex);
             $(div).find('select[name^="sp_criteria_field"]').attr('id', 'sp_criteria_field_'+index+'_'+modIndex);
             $(div).find('select[name^="sp_criteria_modifier"]').attr('name', 'sp_criteria_modifier_'+index+'_'+modIndex);
@@ -332,7 +332,7 @@ function reindexElements() {
 function buttonClickAction(clickType, url){
     var data = $('#smart-block-form').serializeArray(),
         obj_id = $('input[id="obj_id"]').val();
-    
+
     enableLoadingIcon();
     $.post(url, {format: "json", data: data, obj_id: obj_id}, function(data){
         callback(data, clickType);
@@ -346,7 +346,7 @@ function setupUI() {
     if (target_length == '') {
         target_length = '0.0';
     }
-    
+
     /* Activate or Deactivate shuffle button
      * It is only active if playlist is not empty
      */
@@ -362,7 +362,7 @@ function setupUI() {
         shuffleButton.addClass('ui-state-disabled');
         shuffleButton.attr('disabled', 'disabled');
     }
-    
+
     var dynamic_length = target_length;
     if ($('#obj_type').val() == 'block') {
         if (playlist_type == "0") {
@@ -375,7 +375,7 @@ function setupUI() {
             $('#spl_sortable').hide();
         }
     }
-    
+
     $(".playlist_type_help_icon").qtip({
         content: {
             text: $.i18n._("A static smart block will save the criteria and generate the block content immediately. This allows you to edit and view it in the Library before adding it to a show.")+"<br /><br />" +
@@ -397,7 +397,7 @@ function setupUI() {
             at: "right center"
         },
     });
-    
+
     $(".repeat_tracks_help_icon").qtip({
         content: {
             text: sprintf($.i18n._("The desired block length will not be reached if %s cannot find enough unique tracks to match your criteria. Enable this option if you wish to allow tracks to be added multiple times to the smart block."), PRODUCT_NAME)
@@ -434,7 +434,7 @@ function disableAndHideExtraField(valEle, index) {
     var spanExtra = valEle.nextAll("#extra_criteria");
     spanExtra.children('#sp_criteria_extra_'+index).val("").attr("disabled", "disabled");
     spanExtra.hide();
-    
+
     //make value input larger since we don't have extra field now
     var criteria_value = $('#sp_criteria_value_'+index);
     sizeTextBoxes(criteria_value, 'sp_extra_input_text', 'sp_input_text');
@@ -450,15 +450,15 @@ function populateModifierSelect(e, popAllMods) {
     var criteria_type = getCriteriaOptionType(e),
         index = getRowIndex($(e).parent()),
         divs;
- 
+
     if (popAllMods) {
         index = index.substring(0, 1);
     }
     divs = $(e).parents().find('select[id^="sp_criteria_modifier_'+index+'"]');
-    
+
     $.each(divs, function(i, div){
         $(div).children().remove();
-    
+
         if (criteria_type == 's') {
             $.each(stringCriteriaOptions, function(key, value){
                 $(div).append($('<option></option>')
@@ -506,7 +506,7 @@ function callback(json, type) {
         if (json.result == "0") {
             $('#sp-success-saved').text($.i18n._('Smart block saved'));
             $('#sp-success-saved').show();
-        
+
             //redraw library table so the length gets updated
             var dt = $('table[id="library_display"]').dataTable();
             dt.fnStandingRedraw();
@@ -523,7 +523,7 @@ function appendAddButton() {
         enabled = rows.find('select[name^="sp_criteria_field"]:enabled');
 
     rows.find('#criteria_add').remove();
-    
+
     if (enabled.length > 1) {
         rows.find('select[name^="sp_criteria_field"]:enabled:last')
             .siblings('a[id^="criteria_remove"]')
@@ -548,7 +548,7 @@ function removeButtonCheck() {
 }
 
 function enableLoadingIcon() {
-    $("#side_playlist").block({ 
+    $("#side_playlist").block({
         message: $.i18n._("Processing..."),
         theme: true,
         allowBodyStretch: true,
@@ -590,7 +590,8 @@ var criteriaTypes = {
     "track_title"  : "s",
     "track_number" : "n",
     "info_url"     : "s",
-    "year"         : "n"
+    "year"         : "n",
+    "crtc"         : "n"
 };
 
 var stringCriteriaOptions = {
@@ -602,7 +603,7 @@ var stringCriteriaOptions = {
     "starts with" : $.i18n._("starts with"),
     "ends with" : $.i18n._("ends with")
 };
-    
+
 var numericCriteriaOptions = {
     "0" : $.i18n._("Select modifier"),
     "is" : $.i18n._("is"),

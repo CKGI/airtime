@@ -35,6 +35,7 @@
     <column name="genre" phpName="DbGenre" type="VARCHAR" size="64" required="false"/>
     <column name="comments" phpName="DbComments" type="LONGVARCHAR" required="false"/>
     <column name="year" phpName="DbYear" type="VARCHAR" size="16" required="false"/>
+    <column name="crtc" phpName="DbCRTC" type="VARCHAR" size="16" required="false"/>
     <column name="track_number" phpName="DbTrackNumber" type="INTEGER" required="false"/>
     <column name="channels" phpName="DbChannels" type="INTEGER" required="false"/>
     <column name="url" phpName="DbUrl" type="VARCHAR" size="1024" required="false"/>

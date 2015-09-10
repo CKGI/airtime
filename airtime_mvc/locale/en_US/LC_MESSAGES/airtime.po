@@ -293,6 +293,11 @@ msgstr "Website:"
 msgid "Language:"
 msgstr "Language:"
 
+#: airtime_mvc/application/forms/EditAudioMD.php:81
+#: airtime_mvc/application/views/scripts/library/get-file-metadata.ajax.phtml:22
+msgid "CRTC Category:"
+msgstr "CRTC Category:"
+
 #: airtime_mvc/application/forms/EditAudioMD.php:135
 #: airtime_mvc/application/forms/AddUser.php:110
 #: airtime_mvc/application/forms/EditHistory.php:131

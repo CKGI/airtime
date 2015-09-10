@@ -39,7 +39,8 @@ class Application_Form_SmartBlockCriteria extends Zend_Form_SubForm
         "track_title"  => "s",
         "track_number" => "n",
         "info_url"     => "s",
-        "year"         => "n"
+        "year"         => "n",
+        "crtc"         => "n"
     );
 
     private function getCriteriaOptions($option = null)
@@ -73,7 +74,8 @@ class Application_Form_SmartBlockCriteria extends Zend_Form_SubForm
                 "track_number" => _("Track Number"),
                 "utime"        => _("Uploaded"),
                 "info_url"     => _("Website"),
-                "year"         => _("Year")
+                "year"         => _("Year"),
+                "crtc"         => _("CRTC Category"),
             );
         }
 
@@ -501,7 +503,8 @@ class Application_Form_SmartBlockCriteria extends Zend_Form_SubForm
             "sample_rate" => "DbSampleRate",
             "track_title" => "DbTrackTitle",
             "track_number" => "DbTrackNumber",
-            "year" => "DbYear"
+            "year" => "DbYear",
+            "crtc" => "DbCRTC"
         );
 
         // things we need to check

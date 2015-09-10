@@ -127,6 +127,13 @@ class Application_Form_EditAudioMD extends Zend_Form
             'class'      => 'input_text',
             'filters'    => array('StringTrim')
         ));
+        
+        // Add CRTC field
+        $this->addElement('text', 'crtc', array(
+            'label'      => _('CRTC Category:'),
+            'class'      => 'input_text',
+            'filters'    => array('StringTrim')
+        ));        
 
         // Add the submit button
         $this->addElement('button', 'editmdsave', array(
