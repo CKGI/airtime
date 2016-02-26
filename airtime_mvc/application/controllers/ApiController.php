@@ -14,7 +14,8 @@ class ApiController extends Zend_Controller_Action
             "item-history-feed",
             "shows",
             "show-tracks",
-            "show-schedules"
+            "show-schedules",
+            "playout-history-stream"
         );
 
         $params = $this->getRequest()->getParams();
@@ -56,6 +57,7 @@ class ApiController extends Zend_Controller_Action
                 ->addActionContext('update-stream-setting-table'   , 'json')
                 ->addActionContext('update-replay-gain-value'      , 'json')
                 ->addActionContext('update-cue-values-by-silan'    , 'json')
+                // ->addActionContext('playout-history-stream'	   , 'json')
                 ->initContext();
     }
 
@@ -328,6 +330,35 @@ class ApiController extends Zend_Controller_Action
             exit;
         }
     }
+    
+    /** public function playoutHistoryStreamAction()
+    {
+        if (Application_Model_Preference::GetAllow3rdPartyApi()) {
+            // disable the view and the layout
+            $this->view->layout()->disableLayout();
+            $this->_helper->viewRenderer->setNoRender(true);
+    
+            $request = $this->getRequest();
+    
+            $result["baz"] = "foo";
+    
+            // used by caller to determine if the airtime they are running or widgets in use is out of date.
+            $result['AIRTIME_API_VERSION'] = AIRTIME_API_VERSION;
+            header("Content-Type: application/json");
+    
+            if (version_compare(phpversion(), '5.4.0', '<')) {
+                $js = json_encode($result);
+            } else {
+                $js = json_encode($result, JSON_PRETTY_PRINT);
+            }
+            // If a callback is not given, then just provide the raw JSON.
+            echo isset($_GET['callback']) ? $_GET['callback'].'('.$js.')' : $js;
+        } else {
+            header('HTTP/1.0 401 Unauthorized');
+            print _('You are not allowed to access this resource. ');
+            exit;
+        }
+    } **/    
     
     /**
      * Retrieve the currently playing show as well as upcoming shows.
@@ -1426,7 +1457,6 @@ class ApiController extends Zend_Controller_Action
             list($startsDT, $endsDT) = Application_Common_HTTPHelper::getStartEndFromRequest($request);
 
             if ((!isset($showId)) || (!is_numeric($showId))) {
-            //if (!isset($showId)) {
                 $this->_helper->json->sendJson(
                     array("jsonrpc" => "2.0", "error" => array("code" => 400, "message" => "missing invalid type for required show_id parameter. use type int.".$showId))
                 );
@@ -1499,5 +1529,52 @@ class ApiController extends Zend_Controller_Action
         $this->_helper->json($result);
 
     }
+
+    /**
+     * Retrieve playout history by bzf.
+     * Number of shows returned can be configured as GET parameters.
+     *
+     * Possible parameters:
+     * shows - How many shows to retrieve
+     *         Default is 20.
+     */
+    public function playoutHistoryStreamAction()
+    {
+        if (Application_Model_Preference::GetAllow3rdPartyApi()) {
+            // disable the view and the layout
+            $this->view->layout()->disableLayout();
+            $this->_helper->viewRenderer->setNoRender(true);
     
+            $request = $this->getRequest();
+    
+            $showsToRetrieve = $request->getParam('shows');
+            
+            if ($showsToRetrieve == "" || !is_numeric($showsToRetrieve)) {
+                $showsToRetrieve = "20";
+            }
+    
+            $result = Application_Model_Schedule::GetPlayoutHistoryStream($showsToRetrieve);
+    
+            // XSS exploit prevention
+            $this->convertSpecialChars($result, array("name", "url"));
+        
+            // used by caller to determine if the airtime they are running or widgets in use is out of date.
+            $result['AIRTIME_API_VERSION'] = AIRTIME_API_VERSION;
+            header("Content-Type: application/json");
+    
+            if (version_compare(phpversion(), '5.4.0', '<')) {
+                $js = json_encode($result);
+            } else {
+                $js = json_encode($result, JSON_PRETTY_PRINT);
+            }
+            // If a callback is not given, then just provide the raw JSON.
+            echo isset($_GET['callback']) ? $_GET['callback'].'('.$js.')' : $js;
+        } else {
+            header('HTTP/1.0 401 Unauthorized');
+            print _('You are not allowed to access this resource. ');
+            exit;
+        }
+    } 
+      
 }
+

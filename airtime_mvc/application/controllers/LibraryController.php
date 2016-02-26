@@ -20,6 +20,8 @@ class LibraryController extends Zend_Controller_Action
                     ->addActionContext('get-upload-to-soundcloud-status', 'json')
                     ->addActionContext('set-num-entries', 'json')
                     ->addActionContext('edit-file-md', 'json')
+                    ->addActionContext('create-compendium', 'json')
+                    ->addActionContext('handle-compendium', 'json')
                     ->initContext();
     }
 
@@ -216,6 +218,7 @@ class LibraryController extends Zend_Controller_Action
             if ($isAdminOrPM || $file->getFileOwnerId() == $user->getId()) {
                 $menu["del"] = array("name"=> _("Delete"), "icon" => "delete", "url" => $baseUrl."library/delete");
                 $menu["edit"] = array("name"=> _("Edit Metadata"), "icon" => "edit", "url" => $baseUrl."library/edit-file-md/id/{$id}");
+                $menu["compendium"] = array("name"=> _("Create Compendium"), "icon" => "compendium", "url" => $baseUrl."library/create-compendium/id/{$id}");
             }
 
             $url = $file->getRelativeFileUrl($baseUrl).'/download/true';
@@ -261,6 +264,7 @@ class LibraryController extends Zend_Controller_Action
             if ($isAdminOrPM || $obj->getCreatorId() == $user->getId()) {
                 if ($screen == "playlist") {
                     $menu["edit"] = array("name"=> _("Edit"), "icon" => "edit", "url" => $baseUrl."library/edit-file-md/id/{$id}");
+                    $menu["compendium"] = array("name"=> _("Create Compendium"), "icon" => "compendium", "url" => $baseUrl."library/create-compendium/id/{$id}");
                 }
                 $menu["del"] = array("name"=> _("Delete"), "icon" => "delete", "url" => $baseUrl."library/delete");
             }
@@ -424,9 +428,6 @@ class LibraryController extends Zend_Controller_Action
 
         $request = $this->getRequest();
 
-
-
-
         $file_id = $this->_getParam('id', null);
         $file = Application_Model_StoredFile::RecallById($file_id);
 
@@ -541,6 +542,181 @@ class LibraryController extends Zend_Controller_Action
             Logging::info($e->getMessage());
         }
     }
+    
+    // added by bzf
+    public function createCompendiumAction()
+    {
+        $user = Application_Model_User::getCurrentUser();
+        $isAdminOrPM = $user->isUserType(array(UTYPE_ADMIN, UTYPE_PROGRAM_MANAGER));
+
+        $request = $this->getRequest();
+
+        $file_id = $this->_getParam('id', null);
+        $file = Application_Model_StoredFile::RecallById($file_id);
+
+        if (!$isAdminOrPM && $file->getFileOwnerId() != $user->getId()) {
+            return;
+        }
+        
+        $fileName = $file->getName();
+
+	$this->view->fileID = $file_id;
+	$this->view->fileName = $fileName;
+        $this->view->dialog = $this->view->render('library/create-compendium.phtml');
+    }    
+    
+    public function handleCompendiumAction() {
+    	
+	$this->view->layout()->disableLayout();
+    	$this->_helper->viewRenderer->setNoRender(true);
+    	
+    	$user = Application_Model_User::getCurrentUser();  	
+    	
+        $isAdminOrPM = $user->isUserType(array(UTYPE_ADMIN, UTYPE_PROGRAM_MANAGER));
+        
+	$userInfo    = Zend_Auth::getInstance()->getStorage()->read();       
+
+	// open database connection
+	$airtimeConfig = parse_ini_file('/etc/airtime/airtime.conf');
+	
+	$dbName = $airtimeConfig['dbname'];
+	
+	$dbUser = $airtimeConfig['dbuser'];
+	
+	$dbPassword = $airtimeConfig['dbpass'];
+	
+	// open database connection	
+	$dbConnection = pg_pconnect("host=localhost dbname=" . $dbName . " user=" . $dbUser . " password=" . $dbPassword) or die('Could not connect to Airtime database: ' . pg_last_error());
+	
+	// get last file ID
+	$getLastFileQuery = pg_query("SELECT id FROM cc_files ORDER BY id DESC");
+	$lastIDResult = pg_fetch_assoc($getLastFileQuery);
+	$lastID = $lastIDResult['id'];
+	
+	// get last playlist ID
+	$getLastPlaylistIDQuery = pg_query("SELECT id FROM cc_playlist ORDER BY id DESC");
+	$lastPlaylistIDResult = pg_fetch_assoc($getLastPlaylistIDQuery);
+	$lastPlaylistID = $lastPlaylistIDResult['id'];
+	$newPlaylistID = $lastPlaylistID + 1;	
+	
+	// get last playlist entry ID
+	$getLastPlaylistEntryIDQuery = pg_query("SELECT id FROM cc_playlistcontents ORDER BY id DESC");
+	$lastPlaylistEntryIDResult = pg_fetch_assoc($getLastPlaylistEntryIDQuery);
+	$lastPlaylistEntryID = $lastPlaylistEntryIDResult['id'];
+
+	$params = $this->getRequest()->getParams();
+
+	$fileID = $params['fileID'];
+
+	// first, get the originating file info
+	// copy the mime, ftype, directory, filepath, state, currentlyaccessing, editedby, mtime, utime, lptime, md5, bit_rate, sample_rate, format, file_exists, replay_gain, owner_id, silas_check, hidden, is_scheduled, is_playlist
+
+	// query cc_playout_history
+	$fileInfoQueryString = "SELECT * FROM cc_files WHERE id = " . $fileID;
+	
+	$fileInfoQuery = pg_query($fileInfoQueryString);		
+
+	$fileInfo = pg_fetch_assoc($fileInfoQuery);
+	
+	// start new playlist here
+	
+	$thisDate = date("Y-m-d H:i:s");
+	$newPlaylistQueryString = "INSERT INTO cc_playlist (id, name, mtime, utime, creator_id, length) VALUES ('" . $newPlaylistID . "', 'Compendium Playlist " . $thisDate  . "', '" . $thisDate . "', '" . $thisDate . "', '" . $userInfo->id . "', '" . $fileInfo['length'] . "')";
+	$newPlaylistQuery = pg_query($newPlaylistQueryString);
+	
+	$data = $params['data'];
+	
+	$entry = json_decode($data, true);
+	$entryData = var_export($entry, true);
+	
+	$handle = fopen('/var/log/airtime/test3.txt', 'a+');
+	fwrite($handle, date("M j G:i:s T Y") . ":\n" . $entryData . "\n\n");
+	fclose($handle); 	
+	
+	$numberOfEntries = count($entry);
+	
+	$a = 0;
+	$b = 1;
+
+	$newID = $lastID + 1;
+
+	// playlist entry
+	$newPlaylistEntryID = $lastPlaylistEntryID + 1;	
+	
+	do {
+		
+		if (strstr($entry[$a]['starts'], '.')) {
+			$cueInMinutes = strstr($entry[$a]['starts'], '.', true);
+			$cueInSeconds = trim(strstr($entry[$a]['starts'], ".") , ".");
+		} else {
+			$cueInMinutes = $entry[$a]['starts'];
+			$cueInSeconds = 0;
+		}
+		
+		if (strstr($entry[$a]['ends'], '.')) {
+			$cueOutMinutes = strstr($entry[$a]['ends'], '.', true);
+			$cueOutSeconds = trim(strstr($entry[$a]['ends'], ".") , ".");
+		} else {
+			$cueOutMinutes = $entry[$a]['ends'];
+			$cueOutSeconds = 0;
+		}		
+		
+		$startTimeInSeconds = ($cueInMinutes * 60) + $cueInSeconds;
+		$endTimeInSeconds = ($cueOutMinutes * 60) + $cueOutSeconds;
+		
+		$cueIn = gmdate("H:i:s", $startTimeInSeconds) . ".00";
+		$cueOut = gmdate("H:i:s", $endTimeInSeconds) . ".00";
+		
+		$lengthInSeconds = $endTimeInSeconds - $startTimeInSeconds; // 00:00:00.00
+		$length = gmdate("H:i:s", $lengthInSeconds) . ".00";
+		
+		if (empty($entry[$a]['track_number'])) {
+		
+			$entry[$a]['track_number'] = 0;
+		
+		}
+		
+		if (empty($entry[$a]['channels'])) {
+		
+			$entry[$a]['channels'] = 0;
+		
+		}
+		
+		if (empty($entry[$a]['bpm'])) {
+		
+			$entry[$a]['bpm'] = 0;
+		
+		}		
+		
+		// length = cue in - cue out time
+		$insertEntryQueryString = "INSERT INTO cc_files (id, name, mime, ftype, directory, filepath, state, mtime, utime, lptime, md5, track_title, artist_name, bit_rate, sample_rate, format, length, album_title, genre, year, track_number, url, bpm, rating, mood, label, composer, conductor, isrc_number, file_exists, replay_gain, owner_id, cuein, cueout, silan_check, hidden, is_scheduled, is_playlist) VALUES ('" . pg_escape_string($newID) . "', '', '" . pg_escape_string($fileInfo['mime']) . "', '" . pg_escape_string($fileInfo['ftype']) . "', '" . pg_escape_string($fileInfo['directory']) . "', '" . pg_escape_string($fileInfo['filepath']) . "', '" . pg_escape_string($fileInfo['state']) . "', '" . pg_escape_string($fileInfo['mtime']) . "', '" . pg_escape_string($fileInfo['utime']) . "', '" . pg_escape_string($fileInfo['lptime']) . "', '" . pg_escape_string($fileInfo['md5']) . "', '" . pg_escape_string($entry[$a]['track_title']) . "', '" . pg_escape_string($entry[$a]['artist_name']) . "', '" . pg_escape_string($fileInfo['bit_rate']) . "', '" . pg_escape_string($fileInfo['bit_rate']) . "', '" . pg_escape_string($fileInfo['format']) . "', '" . pg_escape_string($length) . "', '" . pg_escape_string($entry[$a]['album_title']) . "', '" . pg_escape_string($entry[$a]['genre']) . "', '" . pg_escape_string($entry[$a]['year']) . "', '" . pg_escape_string($entry[$a]['track_number']) . "', '" . pg_escape_string($entry[$a]['info_url']) . "', '" . pg_escape_string($entry[$a]['bpm']) . "', '" . pg_escape_string($fileInfo['rating']) . "', '" . pg_escape_string($entry[$a]['mood']) . "', '" . pg_escape_string($entry[$a]['label']) . "', '" . pg_escape_string($entry[$a]['composer']) . "', '" . pg_escape_string($entry[$a]['conductor']) . "', '" . pg_escape_string($entry[$a]['isrc_number']) . "', 'TRUE', '" . pg_escape_string($fileInfo['replay_gain']) . "', '" . pg_escape_string($fileInfo['owner_id']) . "', '" . pg_escape_string($cueIn) . "', '" . pg_escape_string($cueOut) . "', '" . pg_escape_string($fileInfo['silan_check']) . "', 'FALSE', 'FALSE', 'FALSE')";
+		
+		$insertEntryQuery = pg_query($insertEntryQueryString);
+		
+		$insertPlaylistEntryQueryString = "INSERT INTO cc_playlistcontents (id, playlist_id, file_id, position, cliplength, cuein, cueout, fadein, fadeout) VALUES ('" . pg_escape_string($newPlaylistEntryID) . "', '" . pg_escape_string($newPlaylistID) . "', '" . pg_escape_string($newID) . "', '" . pg_escape_string($b) . "', '" . pg_escape_string($fileInfo['length']) . "', '" . pg_escape_string($cueIn) . "', '" . pg_escape_string($cueOut) . "', '" . pg_escape_string($cueIn) . "', '" . pg_escape_string($cueOut) . "')";
+		
+		$insertPlaylistEntryQuery = pg_query($insertPlaylistEntryQueryString);
+		
+		$newPlaylistEntryID++;
+
+		$newID++;
+
+		$b++;
+
+		$a++;
+	} while ($a < $numberOfEntries);
+
+	$results = json_encode($entry);
+
+	/** $handle = fopen('/var/log/airtime/test.txt', 'a+');
+	fwrite($handle, date("M j G:i:s T Y") . ": " . $results . "\n\n");
+	fclose($handle); **/
+
+	echo $this->_helper->json($entry);
+            	
+    }
+    
+    // end bzf addition
 
     public function uploadFileSoundcloudAction()
     {

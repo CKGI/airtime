@@ -1148,4 +1148,19 @@ SQL;
 
         return $scheduledItem->getDbStreamId();
     }
+    
+    /**
+     * Gets old shows - bzf
+     */
+    public static function GetPlayoutHistoryStream($showsToRetrieve = 20)
+    {
+
+        // when timeEnd is unspecified, return to the default behaviour - set a range of 48 hours from current time
+        // $shows = Application_Model_Show::getPlayoutMetadata($showsToRetrieve);
+        $results = Application_Model_Show::getPlayoutMetadata($showsToRetrieve);
+
+        return $results;
+    }    
+    
+    
 }

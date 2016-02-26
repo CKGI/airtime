@@ -1,0 +1,79 @@
+<div class="ui-widget ui-widget-content block-shadow simple-formblock clearfix padded-strong" id="edit-md-dialog">
+
+	<input type="hidden" name="file_id" value="<?php echo $this->fileID; ?>" id="file_id">
+	<div class="compendiumContainer">
+		<div class="compendiumTitle">Compendium from <i><?php echo $this->fileName; ?></i></div>
+		<div id="compendiumResponse"></div>
+		<div class="compendiumControls">
+			<div class="compendiumControlsLeft"><button name="addcompendiumtrack" id="addcompendiumtrack" type="button" class="btn">Add Track</button></div>
+			<div class="compendiumControlsRight"><button name="savecompendium" id="savecompendium" type="button" class="btn">Save Compendium</button></div>
+		</div>
+		<div class="compendiumEntry" id="compendium_entry1">
+			<div class="compendiumEntryTitle" id="compendium_entry1title"><a href="#" id="compendium_entry1link" class="compendiumTrackListing" onClick="openCloseCompendiumTrack(1);"><span class="compendiumTrackName" id="compendiumTrackName1">Track 1&nbsp;</span><img src="css/images/compendium_open.png" height="10" width="10" border="0" id="compendium_entry1arrow"></img></a></div>
+			<div class="compendiumEntryData" id="compendium_entry1data">
+				<form class="compendiumEntryForm" enctype="application/x-www-form-urlencoded" method="post" action="" id="compendiumentry1form">
+					<dl class="zend_form">
+						<dt id="compendium_entry_starts-label"><label for="compendium_entry_starts" class="optional">Starts:</label></dt>
+						<dd id="compendium_entry_starts-element">
+						<input type="text" name="compendium_entry_starts" id="compendium_entry_starts" value="" class="input_text"></dd>
+						<dt id="compendium_entry_ends-label"><label for="compendium_entry_ends" class="optional">Ends:</label></dt>
+						<dd id="compendium_entry_ends-element">
+						<input type="text" name="compendium_entry_ends" id="compendium_entry_ends" value="" class="input_text"></dd>				
+						<dt id="track_title-label"><label for="track_title" class="optional">Title:</label></dt>
+						<dd id="track_title-element">
+						<input type="text" name="track_title" id="track_title" value="" class="input_text"></dd>
+						<dt id="artist_name-label"><label for="artist_name" class="optional">Creator:</label></dt>
+						<dd id="artist_name-element">
+						<input type="text" name="artist_name" id="artist_name" value="" class="input_text"></dd>
+						<dt id="album_title-label"><label for="album_title" class="optional">Album:</label></dt>
+						<dd id="album_title-element">
+						<input type="text" name="album_title" id="album_title" value="" class="input_text"></dd>
+						<dt id="track_number-label"><label for="track_number" class="optional">Track:</label></dt>
+						<dd id="track_number-element">
+						<input type="text" name="track_number" id="track_number" value="" class="input_text"></dd>
+						<dt id="genre-label"><label for="genre" class="optional">Genre:</label></dt>
+						<dd id="genre-element">
+						<input type="text" name="genre" id="genre" value="" class="input_text"></dd>
+						<dt id="year-label"><label for="year" class="optional">Year:</label></dt>
+						<dd id="year-element">
+						<input type="text" name="year" id="year" value="" class="input_text"></dd>
+						<dt id="label-label"><label for="label" class="optional">Label:</label></dt>
+						<dd id="label-element">
+						<input type="text" name="label" id="label" value="" class="input_text"></dd>
+						<dt id="composer-label"><label for="composer" class="optional">Composer:</label></dt>
+						<dd id="composer-element">
+						<input type="text" name="composer" id="composer" value="" class="input_text"></dd>
+						<dt id="conductor-label"><label for="conductor" class="optional">Conductor:</label></dt>
+						<dd id="conductor-element">
+						<input type="text" name="conductor" id="conductor" value="" class="input_text"></dd>
+						<dt id="mood-label"><label for="mood" class="optional">Mood:</label></dt>
+						<dd id="mood-element">
+						<input type="text" name="mood" id="mood" value="" class="input_text"></dd>
+						<dt id="bpm-label"><label for="bpm" class="optional">BPM:</label></dt>
+						<dd id="bpm-element">
+						<input type="text" name="bpm" id="bpm" value="" class="input_text"></dd>
+						<dt id="copyright-label"><label for="copyright" class="optional">Copyright:</label></dt>
+						<dd id="copyright-element">
+						<input type="text" name="copyright" id="copyright" value="" class="input_text"></dd>
+						<dt id="isrc_number-label"><label for="isrc_number" class="optional">ISRC Number:</label></dt>
+						<dd id="isrc_number-element">
+						<input type="text" name="isrc_number" id="isrc_number" value="" class="input_text"></dd>
+						<dt id="info_url-label"><label for="info_url" class="optional">Website:</label></dt>
+						<dd id="info_url-element">
+						<input type="text" name="info_url" id="info_url" value="" class="input_text"></dd>
+						<dt id="language-label"><label for="language" class="optional">Language:</label></dt>
+						<dd id="language-element">
+						<input type="text" name="language" id="language" value="" class="input_text"></dd>
+						<dt id="crtc-label"><label for="crtc" class="optional">CRTC Codes:</label></dt>
+						<dd id="crtc-element">
+						<input type="text" name="crtc" id="crtc" value="" class="input_text"></dd>
+						<dt id="submitButtons-label">&nbsp;</dt><dd id="submitButtons-element">
+
+						<button name="compendiumentrycancel1" id="compendiumentrycancel1" type="button" class="btn md-cancel" onClick="cancelEntry(1);">Cancel</button></dd>
+					</dl>
+				</form>
+			</div>
+			<hr class="compendiumEntry" id="compendiumentryrule1" />
+		</div>
+	</div>
+</div>

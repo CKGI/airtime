@@ -3154,3 +3154,93 @@ dd .stream-status {
 #popup-share-link {
     width: 320px;
 }
+
+/** added by bzf **/
+
+a.compendiumTrackListing {
+	color: blue;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+a.compendiumTrackListing:visited {
+	color: blue;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+a.compendiumTrackListing:hover {
+	color: #ff4500;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+div.compendiumControlsLeft {
+	display: inline-block;
+	width: 45%;
+	text-align: center;
+}
+
+div.compendiumControlsRight {
+	display: inline-block;
+	width: 45%;
+	text-align: center;
+}
+
+div.compendiumEntry {
+	margin-bottom: 10px;
+}
+
+div.compendiumEntryData {
+	padding-top: 2px;
+	border: 3px ridge #696969;
+	background-color: white;
+	padding-bottom: 50px;
+	padding-left: 15px;
+}
+
+div.compendiumEntryClosed {
+	padding-top: 2px;
+	padding-bottom: 5px;
+}
+
+div.compendiumEntryData > form > dl > dt {
+	float: none;
+	text-align: left;
+	display: block;
+}
+
+div.compendiumEntryData > form > dl > dt > label {
+	float: none;
+	text-align: left;
+	display: block;
+}
+
+div.compendiumEntryTitle {
+	font-size: 1.1em;
+	font-weight: bold;
+	color: blue;
+}
+
+div#compendiumResponse > p {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	font-size: 1.2em;
+	font-weight: bold;
+	text-align: center;
+}
+
+div.compendiumTitle {
+	margin-top: 20px;
+	margin-bottom: 20px;
+	font-size: 1.4em;
+	font-weight: bold;
+	margin-left; 10px;
+}
+
+hr.compendiumEntry {
+	display: block;
+	height: 3px;
+	width: 90%;
+	color: #ff5d1a;
+}
